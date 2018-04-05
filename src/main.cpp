@@ -14,6 +14,7 @@
       You should have received a copy of the GNU General Public License
       along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
+#include "url_reader.h"
 #include "quicky_exception.h"
 #include <iostream>
 
@@ -23,6 +24,10 @@ int main(int argc,char ** argv)
 {
   try
     {
+      quicky_url_reader::url_reader & l_instance = quicky_url_reader::url_reader::instance();
+      std::string l_page_content;
+      l_instance.dump_url("https://login.yahoo.com", l_page_content);
+      std::cout << "Page content :" << std::endl << l_page_content;
     }
   catch(quicky_exception::quicky_runtime_exception & e)
     {
