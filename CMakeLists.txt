@@ -15,6 +15,7 @@ set(MY_INCLUDE_DIRECTORIES
 #Create dependancy list
 set(DEPENDANCY_LIST "")
 LIST(APPEND DEPENDANCY_LIST "url_reader")
+LIST(APPEND DEPENDANCY_LIST "EXT_xmlParser")
 LIST(APPEND DEPENDANCY_LIST "quicky_utils")
 
 #------------------------------
@@ -58,7 +59,8 @@ if(IS_DIRECTORY ${HAS_PARENT})
 else()
     #set(CMAKE_VERBOSE_MAKEFILE ON)
     add_executable(${PROJECT_NAME} ${MY_SOURCE_FILES} ${DEPENDANCY_OBJECTS} src/main.cpp)
-    target_compile_definitions(${PROJECT_NAME} PRIVATE -D$<UPPER_CASE:${PROJECT_NAME}>_SELF_TEST)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE -D$<UPPER_CASE:${PROJECT_NAME}>_SELF_TEST -D_UNICODE)
+    target_compile_definitions(EXT_xmlParser PUBLIC -D_UNICODE)
     target_link_libraries(${PROJECT_NAME} ${LINKED_LIBRARIES})
 endif()
 

@@ -23,6 +23,7 @@ before_install:
   - git clone https://github.com/quicky2000/quicky_utils.git
   - git clone https://github.com/quicky2000/url_reader.git
   - git clone https://github.com/quicky2000/EXT_libcurl.git
+  - git clone https://github.com/quicky2000/EXT_xmlParser.git
   - cd $MY_LOCATION/repositories
   - cd quicky_tools/setup
   - . setup.sh
