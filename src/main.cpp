@@ -83,6 +83,37 @@ void printNode(XMLNode p_node, unsigned int p_level=0)
     }
 
 }
+
+//------------------------------------------------------------------------------
+void remove_beacon_text(const std::string & p_beacon, std::string & p_text)
+{
+    size_t l_pos = 0;
+
+    while((l_pos = p_text.find("<" + p_beacon, l_pos)) != std::string::npos)
+    {
+        if (std::string::npos != l_pos)
+        {
+            l_pos = p_text.find(">",
+                                l_pos
+                               );
+            if (std::string::npos != l_pos)
+            {
+                size_t l_pos_end = p_text.find("</" + p_beacon + ">",
+                                               l_pos + 1
+                                              );
+                if (std::string::npos != l_pos_end)
+                {
+                    ++l_pos;
+                    p_text = p_text.replace(l_pos,
+                                            l_pos_end - l_pos,
+                                            ""
+                                           );
+                }
+            }
+        }
+    }
+}
+
 //------------------------------------------------------------------------------
 int
 main(int argc,
@@ -97,9 +128,17 @@ main(int argc,
                             l_page_content
                            );
         std::cout << "Page content :" << std::endl << l_page_content;
+        std::string l_modified_page_content = l_page_content;
+
+        remove_beacon_text("script", l_modified_page_content);
+        remove_beacon_text("style", l_modified_page_content);
+
         std::ofstream l_ofstream;
         l_ofstream.open("URL_content.txt");
         l_ofstream << l_page_content << std::endl;
+        l_ofstream.close();
+        l_ofstream.open("URL_modified_content.txt");
+        l_ofstream << l_modified_page_content << std::endl;
         l_ofstream.close();
 
         //l_page_content = "<!DOCTYPE html><html class=\"no-js\"></html>";
