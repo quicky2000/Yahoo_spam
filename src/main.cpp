@@ -45,6 +45,22 @@ std::wstring to_wstring(const std::string & p_string)
 }
 
 //------------------------------------------------------------------------------
+void dump_string_in_file(const std::string & p_string,
+                         const std::string & p_file_name
+                        )
+{
+    std::ofstream l_ofstream;
+    l_ofstream.open(p_file_name);
+    if(!l_ofstream.is_open())
+    {
+        throw quicky_exception::quicky_runtime_exception("Unable to write file \""+ p_file_name + "\"", __LINE__, __FILE__);
+    }
+    l_ofstream << p_string << std::endl;
+    l_ofstream.close();
+
+}
+
+//------------------------------------------------------------------------------
 void remove_beacon_text(const std::string & p_beacon, std::string & p_text)
 {
     size_t l_pos = 0;
@@ -121,11 +137,21 @@ main(int argc,
 {
     try
     {
-        const std::string l_file_name("URL_content.html");
+        std::string l_url_content;
         quicky_url_reader::url_reader & l_instance = quicky_url_reader::url_reader::instance();
         l_instance.dump_url("https://login.yahoo.com",
-                            l_file_name
+                            l_url_content
                            );
+
+        dump_string_in_file(l_url_content, "URL_content.html");
+
+        std::string l_modified_content = l_url_content;
+        remove_beacon_text("script", l_modified_content);
+        remove_beacon_text("style", l_modified_content);
+
+        std::string l_file_name("URL_modified_content.html");
+        dump_string_in_file(l_modified_content, l_file_name);
+
         std::ifstream l_ifstream;
         l_ifstream.open(l_file_name.c_str());
         if(!l_ifstream.is_open())
