@@ -19,6 +19,7 @@
 #include "xmlParser.h"
 #include <iostream>
 #include <fstream>
+#include <vector>
 
 /**
  * Convert a swtring to string
@@ -115,6 +116,45 @@ void remove_beacon_text(const std::string & p_beacon, std::string & p_text)
 }
 
 //------------------------------------------------------------------------------
+void trim(std::string & p_string)
+{
+    if("" == p_string) return;
+    size_t l_pos = p_string.find_first_not_of(" \t");
+    if(std::string::npos != l_pos)
+    {
+        p_string.erase(0,l_pos);
+    }
+    l_pos = p_string.size();
+    bool l_erase = false;
+    while(l_pos && (' ' == p_string[l_pos - 1] || '\t' == p_string[l_pos -1]))
+    {
+        --l_pos;
+        l_erase = true;
+    }
+    if(l_erase)
+    {
+        p_string.erase(l_pos);
+    }
+}
+
+//------------------------------------------------------------------------------
+void extract_input_beacons(std::istream & p_stream,
+                           std::vector<std::string> & p_beacons)
+{
+    std::string l_line;
+    while(!p_stream.eof())
+    {
+        std::getline(p_stream,l_line);
+        size_t l_pos = l_line.find("<input");
+        if(std::string::npos != l_pos)
+        {
+            trim(l_line);
+            p_beacons.push_back(l_line);
+        }
+    }
+}
+
+//------------------------------------------------------------------------------
 int
 main(int argc,
      char **argv
@@ -122,41 +162,25 @@ main(int argc,
 {
     try
     {
+        const std::string l_file_name("URL_content.html");
         quicky_url_reader::url_reader & l_instance = quicky_url_reader::url_reader::instance();
-        std::string l_page_content;
         l_instance.dump_url("https://login.yahoo.com",
-                            l_page_content
+                            l_file_name
                            );
-        std::cout << "Page content :" << std::endl << l_page_content;
-        std::string l_modified_page_content = l_page_content;
-
-        remove_beacon_text("script", l_modified_page_content);
-        remove_beacon_text("style", l_modified_page_content);
-
-        std::ofstream l_ofstream;
-        l_ofstream.open("URL_content.txt");
-        l_ofstream << l_page_content << std::endl;
-        l_ofstream.close();
-        l_ofstream.open("URL_modified_content.txt");
-        l_ofstream << l_modified_page_content << std::endl;
-        l_ofstream.close();
-
-        //l_page_content = "<!DOCTYPE html><html class=\"no-js\"></html>";
-        XMLResults l_result;
-        std::wstring l_wstring(l_page_content.size(), L' ');
-        mbstowcs(&l_wstring[0],l_page_content.c_str(),l_page_content.size());
-        XMLNode l_node = XMLNode::parseString(l_wstring.c_str(),
-                                              NULL, //L"html",
-                                              &l_result
-                                             );
-        if (eXMLErrorNone == l_result.error)
+        std::ifstream l_ifstream;
+        l_ifstream.open(l_file_name.c_str());
+        if(!l_ifstream.is_open())
         {
-            std::cout << "Parsing OK" << std::endl;
-        } else
-        {
-            std::wcout << XMLNode::getError(l_result.error) << std::endl;
+            throw quicky_exception::quicky_runtime_exception("Unable to read file \""+ l_file_name + "\"", __LINE__, __FILE__);
         }
-        printNode(l_node);
+        std::vector<std::string> l_inputs;
+        extract_input_beacons(l_ifstream, l_inputs);
+        l_ifstream.close();
+
+        for(auto l_iter: l_inputs)
+        {
+            std::cout << l_iter << std::endl;
+        }
         std::cout << "Done" << std::endl;
     }
     catch (quicky_exception::quicky_runtime_exception & e)
