@@ -61,6 +61,25 @@ void dump_string_in_file(const std::string & p_string,
 }
 
 //------------------------------------------------------------------------------
+void remove_extra_line_return(std::string & p_text,
+                             const std::string & p_line_return
+                             )
+{
+    size_t l_pos = 0;
+    while(std::string::npos != (l_pos = p_text.find(p_line_return, l_pos)))
+    {
+        if(l_pos > 0 && p_text[l_pos -1] != '>')
+        {
+            p_text.erase(l_pos,p_line_return.size());
+        }
+        else
+        {
+            ++l_pos;
+        }
+    }
+}
+
+//------------------------------------------------------------------------------
 void remove_beacon_text(const std::string & p_beacon, std::string & p_text)
 {
     size_t l_pos = 0;
@@ -150,6 +169,12 @@ main(int argc,
         remove_beacon_text("style", l_modified_content);
 
         std::string l_file_name("URL_modified_content.html");
+        dump_string_in_file(l_modified_content, l_file_name);
+
+        remove_extra_line_return(l_modified_content,"\r\n");
+        remove_extra_line_return(l_modified_content,"\n");
+
+        l_file_name = "URL_modified_content2.html";
         dump_string_in_file(l_modified_content, l_file_name);
 
         std::ifstream l_ifstream;
