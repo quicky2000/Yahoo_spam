@@ -16,7 +16,6 @@
 */
 #include "url_reader.h"
 #include "quicky_exception.h"
-#include "xmlParser.h"
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -43,46 +42,6 @@ std::wstring to_wstring(const std::string & p_string)
     std::wstring l_wstring(p_string.size(), L' ');
     mbstowcs(&l_wstring[0],p_string.c_str(),p_string.size());
     return l_wstring;
-}
-
-void printNode(XMLNode p_node, unsigned int p_level=0)
-{
-    std::string l_prefix(p_level, ' ');
-    std::cout << l_prefix << "Name : \"";
-    std::wcout << (p_node.getName() ? p_node.getName() : L"") << "\"" << std::endl;
-    std::cout << l_prefix << "Child number : " << p_node.nChildNode() << std::endl;
-    std::cout << l_prefix << "Attribute number : " << p_node.nAttribute() << std::endl;
-    std::cout << l_prefix << "Text number : " << p_node.nText() << std::endl;
-    std::cout << l_prefix << "Clear number : " << p_node.nClear() << std::endl;
-    for (unsigned int l_index = 0;
-         l_index < p_node.nAttribute();
-         ++l_index
-            )
-    {
-        std::cout << l_prefix << "Attribute[" << l_index << "] = (\"";
-        std::wcout << p_node.getAttributeName(l_index);
-        std::cout << "\",\"";
-        std::wcout << p_node.getAttributeValue(l_index);
-        std::cout << "\")" << std::endl;
-    }
-    for (unsigned int l_index = 0;
-         l_index < p_node.nText();
-         ++l_index
-            )
-    {
-        std::cout << l_prefix << "Text[" << l_index << "] = \"";
-        std::wcout << p_node.getText(l_index);
-        std::cout << "\"" << std::endl;
-    }
-    for (unsigned int l_index = 0;
-         l_index < p_node.nChildNode();
-         ++l_index
-            )
-    {
-        std::cout << l_prefix << "Child[" << l_index << "] :" << std::endl;
-        printNode(p_node.getChildNode(l_index), p_level + 1);
-    }
-
 }
 
 //------------------------------------------------------------------------------
