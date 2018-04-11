@@ -19,6 +19,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <map>
 
 /**
  * Convert a swtring to string
@@ -143,11 +144,48 @@ void extract_input_beacons(std::istream & p_stream,
         if(std::string::npos != l_pos)
         {
             trim(l_line);
+            if('<' != l_line[0] || '>' != l_line[l_line.size() -1])
+            {
+                throw quicky_exception::quicky_logic_exception("Malformed Beacon : \"" + l_line + "\"", __LINE__, __FILE__);
+            }
             p_beacons.push_back(l_line);
         }
     }
 }
 
+//------------------------------------------------------------------------------
+void extract_attributes(const std::string & p_string,
+                        std::map<std::string,std::string> & p_attributes)
+{
+    // Search for first blank character separating beacon from attribute name
+    size_t l_pos = p_string.find_first_of(" \t");
+    if(std::string::npos == l_pos)
+    {
+        throw quicky_exception::quicky_logic_exception("Missing space after beacon name : \"" + p_string + "\"", __LINE__, __FILE__);
+    }
+
+    size_t l_pos_start = l_pos;
+    while(std::string::npos != (l_pos = p_string.find('=', l_pos_start)))
+    {
+        std::string l_attribute_name = p_string.substr(l_pos_start, l_pos - l_pos_start);
+        trim(l_attribute_name);
+
+        l_pos_start = p_string.find('"', l_pos);
+        if(std::string::npos == l_pos_start)
+        {
+            throw quicky_exception::quicky_logic_exception("Missing '\"' character starting value of attribute \"" + l_attribute_name + " in \"" + p_string + "\"", __LINE__, __FILE__);
+        }
+        ++l_pos_start;
+        l_pos = p_string.find('"', l_pos_start);
+        if(std::string::npos == l_pos)
+        {
+            throw quicky_exception::quicky_logic_exception("Missing '\"' character closing value of attribute \"" + l_attribute_name + " in \"" + p_string + "\"", __LINE__, __FILE__);
+        }
+        std::string l_value = p_string.substr(l_pos_start, l_pos - l_pos_start);
+        p_attributes.insert(std::map<std::string,std::string>::value_type(l_attribute_name, l_value));
+        l_pos_start = l_pos + 1;
+    }
+}
 //------------------------------------------------------------------------------
 int
 main(int argc,
@@ -183,13 +221,22 @@ main(int argc,
         {
             throw quicky_exception::quicky_runtime_exception("Unable to read file \""+ l_file_name + "\"", __LINE__, __FILE__);
         }
+
+        // Extract inputs
         std::vector<std::string> l_inputs;
         extract_input_beacons(l_ifstream, l_inputs);
         l_ifstream.close();
 
+        // Extrac attibutes for each input
         for(auto l_iter: l_inputs)
         {
             std::cout << l_iter << std::endl;
+            std::map<std::string,std::string> l_attributes;
+            extract_attributes(l_iter, l_attributes);
+            for(auto l_iter: l_attributes)
+            {
+              std::cout << l_iter.first << "=\"" << l_iter.second << "\"" << std::endl;
+            }
         }
         std::cout << "Done" << std::endl;
     }
