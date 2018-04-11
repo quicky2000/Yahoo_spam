@@ -227,16 +227,44 @@ main(int argc,
         extract_input_beacons(l_ifstream, l_inputs);
         l_ifstream.close();
 
-        // Extrac attibutes for each input
+        std::map<std::string,std::string> l_interesting_inputs = {
+                {"crumb",""},
+                {"acrumb",""},
+                {"sessionIndex",""}
+        };
+
+        // Extrac attibrutes for each input
         for(auto l_iter: l_inputs)
         {
-            std::cout << l_iter << std::endl;
             std::map<std::string,std::string> l_attributes;
             extract_attributes(l_iter, l_attributes);
-            for(auto l_iter: l_attributes)
+
+            // Search for name attribute
+            auto l_attribute_iter = l_attributes.find("name");
+            if(l_attributes.end() == l_attribute_iter)
             {
-              std::cout << l_iter.first << "=\"" << l_iter.second << "\"" << std::endl;
+                throw quicky_exception::quicky_logic_exception("name attribute is missing for input \"" + l_iter + "\"", __LINE__, __FILE__);
             }
+            std::string l_name = l_attribute_iter->second;
+
+            //Search if this an interesting input
+            auto l_input_iter = l_interesting_inputs.find(l_name);
+            if(l_interesting_inputs.end() != l_input_iter)
+            {
+                // Search value attribute
+                l_attribute_iter = l_attributes.find("value");
+                if(l_attributes.end() == l_attribute_iter)
+                {
+                    throw quicky_exception::quicky_logic_exception("value attribute is missing for input \"" + l_name +"\" : \"" + l_iter + "\"", __LINE__, __FILE__);
+                }
+                l_interesting_inputs[l_name] = l_attribute_iter->second;
+            }
+        }
+
+        // Display value of interesting inputs
+        for (auto l_iter: l_interesting_inputs)
+        {
+            std::cout << "\t" << l_iter.first << "=\"" << l_iter.second << "\"" << std::endl;
         }
         std::cout << "Done" << std::endl;
     }
