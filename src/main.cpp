@@ -272,6 +272,29 @@ main(int argc,
                 throw quicky_exception::quicky_logic_exception("Input \"" + l_iter.first +"\" is missing", __LINE__, __FILE__);
             }
         }
+
+        // Add harcorded inputs
+        std::vector<std::pair<std::string,std::string> > l_param_list;
+        l_param_list.push_back(std::pair<std::string,std::string>("authMecanism","primary"));
+        l_param_list.push_back(std::pair<std::string,std::string>("display","login"));
+        l_param_list.push_back(std::pair<std::string,std::string>("yid","julien_thevenon"));
+        l_param_list.push_back(std::pair<std::string,std::string>("done","https://www.yahoo.com/"));
+        l_param_list.push_back(std::pair<std::string,std::string>("sessionIndex",l_interesting_inputs["sessionIndex"]));
+        l_param_list.push_back(std::pair<std::string,std::string>("acrumb",l_interesting_inputs["acrumb"]));
+
+        std::string l_params;
+        for(auto l_iter: l_param_list)
+        {
+            l_instance.add_parameter(l_params, l_iter.first, l_iter.second);
+        }
+        //sleep(10);
+        std::string l_step2_url = "https://login.yahoo.com/account/challenge/password?" + l_params;
+        std::cout << "URL = \""  << l_step2_url << "\"" << std::endl;
+
+        l_instance.dump_url(l_step2_url,
+                            l_url_content
+                           );
+        dump_string_in_file(l_url_content, "URL_login.html");
         std::cout << "Done" << std::endl;
     }
     catch (quicky_exception::quicky_runtime_exception & e)
