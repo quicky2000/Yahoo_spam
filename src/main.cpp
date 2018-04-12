@@ -228,7 +228,6 @@ main(int argc,
         l_ifstream.close();
 
         std::map<std::string,std::string> l_interesting_inputs = {
-                {"crumb",""},
                 {"acrumb",""},
                 {"sessionIndex",""}
         };
@@ -265,6 +264,10 @@ main(int argc,
         for (auto l_iter: l_interesting_inputs)
         {
             std::cout << "\t" << l_iter.first << "=\"" << l_iter.second << "\"" << std::endl;
+            if("" == l_iter.second)
+            {
+                throw quicky_exception::quicky_logic_exception("Input \"" + l_iter.first +"\" is missing", __LINE__, __FILE__);
+            }
         }
         std::cout << "Done" << std::endl;
     }
