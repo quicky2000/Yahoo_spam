@@ -291,6 +291,51 @@ main(int argc,
         std::string l_step2_url = "https://login.yahoo.com/account/challenge/password?" + l_params;
         std::cout << "URL = \""  << l_step2_url << "\"" << std::endl;
 
+        // Parse cookie file
+        std::string l_cookie_content;
+        std::ifstream l_cookie_file;
+        l_cookie_file.open(l_cookie_file_name);
+        if(!l_cookie_file.is_open())
+        {
+            throw quicky_exception::quicky_logic_exception("Unable to read " + l_cookie_file_name, __LINE__, __FILE__);
+        }
+        while(!l_cookie_file.eof())
+        {
+            std::string l_line;
+            std::getline(l_cookie_file,l_line);
+            std::string l_truncated;
+            if("" != l_line && std::string::npos != l_line.find("yahoo"))
+            {
+                size_t l_pos = 0;
+                for(unsigned int l_index = 0; l_index < 5; ++l_index)
+                {
+                    l_pos = l_line.find('\t', l_pos);
+                    if(std::string::npos == l_pos)
+                    {
+                        throw quicky_exception::quicky_logic_exception("Not enough TAB in cookie file line \"" + l_line + "\"", __LINE__, __FILE__);
+                    }
+                    ++l_pos;
+                }
+                l_truncated = l_line.substr(l_pos);
+                std::cout << "\"" << l_truncated << "\"" << std::endl;
+                l_pos = l_truncated.find('\t');
+                if(std::string::npos == l_pos)
+                {
+                    throw quicky_exception::quicky_logic_exception("Missing TAB in cookie file line \"" + l_line + "\"", __LINE__, __FILE__);
+                }
+                std::string l_name = l_truncated.substr(0,l_pos);
+                std::string l_value = l_truncated.substr(l_pos + 1);
+                if("" != l_cookie_content)
+                {
+                    l_cookie_content += "; ";
+                }
+                l_cookie_content += l_name + "=" + l_value;
+            }
+        }
+        l_cookie_file.close();
+
+        std::cout << "Cookie : " << l_cookie_content << std::endl;
+
         l_instance.dump_url(l_step2_url,
                             l_url_content
                            );
