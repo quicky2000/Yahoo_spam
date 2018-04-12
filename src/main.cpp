@@ -196,6 +196,9 @@ main(int argc,
     {
         std::string l_url_content;
         quicky_url_reader::url_reader & l_instance = quicky_url_reader::url_reader::instance();
+        std::string l_cookie_file_name = "cookie.txt";
+        l_instance.set_cookie_file(l_cookie_file_name);
+
         l_instance.dump_url("https://login.yahoo.com",
                             l_url_content
                            );
