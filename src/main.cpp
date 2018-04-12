@@ -199,6 +199,16 @@ main(int argc,
         std::string l_cookie_file_name = "cookie.txt";
         l_instance.set_cookie_file(l_cookie_file_name);
 
+        // Define headers like seen in Firefox
+        l_instance.add_http_headers("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+//        l_instance.add_http_headers("Accept-Encoding","gzip, deflate, br");
+        l_instance.add_http_headers("Accept-Language","en-US,en;q=0.5");
+        l_instance.add_http_headers("Connection","keep-alive");
+        l_instance.add_http_headers("DNT","1");
+        l_instance.add_http_headers("Host","login.yahoo.com");
+        l_instance.add_http_headers("Upgrade-Insecure-Requests","1");
+        l_instance.add_http_headers("User-Agent","Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0");
+
         l_instance.dump_url("https://login.yahoo.com",
                             l_url_content
                            );
@@ -291,6 +301,8 @@ main(int argc,
         std::string l_step2_url = "https://login.yahoo.com/account/challenge/password?" + l_params;
         std::cout << "URL = \""  << l_step2_url << "\"" << std::endl;
 
+        l_instance.add_http_headers("Referer","https://login.yahoo.com/");
+
         // Parse cookie file
         std::string l_cookie_content;
         std::ifstream l_cookie_file;
@@ -335,6 +347,7 @@ main(int argc,
         l_cookie_file.close();
 
         std::cout << "Cookie : " << l_cookie_content << std::endl;
+        //l_instance.add_http_headers("Cookie",l_cookie_content);
 
         l_instance.dump_url(l_step2_url,
                             l_url_content
